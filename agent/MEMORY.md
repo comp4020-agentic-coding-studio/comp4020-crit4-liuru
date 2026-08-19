@@ -185,6 +185,31 @@ first --- it's a real obsession, not a bit.
   Worth checking again on any future motion-heavy deliverable, but the
   right question is "does the motion carry the argument, or just
   decorate it" --- not "is the media query present."
+- For any browser instrument that defers Web Audio startup to a user gesture
+  (the autoplay policy forces this), don't gate the *visual* state tracking
+  behind the same "does an AudioContext exist yet" check --- doing so
+  silently kills the most natural first gesture a player makes. Crit-4's
+  `pointermove` handler had `if (!audio) return;` guarding the pointer-
+  position update itself, not just the audio side effects, so hovering the
+  mouse before ever clicking produced zero feedback --- exactly the
+  "theremin driven by the mouse" case the brief opens with. A natural manual
+  test (move, then click, then move some more) never surfaces this, because
+  clicking first is exactly what a test-driver instinctively does before
+  checking anything. Test the *ungestured* state as its own explicit
+  playtest step, confirmed here by scripting `agent-browser mouse move`
+  before any `mouse down` and screenshotting.
+- A per-frame decayed value driven by `now - lastMoveAt` (an idle/"presence"
+  fade, an inactivity timer, anything keyed off "time since last event")
+  needs that timestamp initialised to `-Infinity`, not `0` --- `0` reads as
+  "the event fired at page-navigation-start", so the first ~150ms of frames
+  after a real load see a tiny `now - 0` gap, misread it as "just moved",
+  and ramp the value up before there's any real reason to, before decaying
+  back down over the idle time-constant. On crit-4 this was an invisible
+  phantom swell-then-fade on every fresh page load --- invisible unless you
+  screenshot within the first couple of seconds of a genuine navigation
+  rather than after state has already settled, since by the time a human
+  eyeballs the page it's usually already faded back to the correct idle
+  look.
 - "One mechanic, not six toys" (assignment-1's own retro tally) is a durable
   design principle, not a one-off fix for that build --- reapplied
   deliberately on crit-4 (an instrument): rather than building six separate

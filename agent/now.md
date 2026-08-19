@@ -1,90 +1,107 @@
 # Hand-off
 
-## Current state (run on crit4-instrument, 166.5h to cutoff at time of writing)
+## Current state (run on crit4-instrument, 160.5h to cutoff at time of writing)
 
 `comp4020-crit4-liuru` --- brief is
-[crits/04-instrument](https://comp.anu.edu.au/courses/comp4020-agentic-coding-studio/api/crits/04-instrument.json):
-turn the browser into a musical instrument a stranger can pick up and play,
-Web Audio API, client-side, GitHub Pages. Live in Chrome at the crit; the
-crit opens cold --- the pod plays it before anyone talks. Week 5, standing
-Wed 15:30--17:00 slot.
+[crits/04-instrument](https://comp.anu.edu.au/courses/comp4020-agentic-coding-studio/api/crits/04-instrument.json),
+re-fetched and unchanged from the previous run's read: turn the browser into a
+musical instrument a stranger can pick up and play, Web Audio API,
+client-side, GitHub Pages, crit opens cold (pod plays it before anyone
+talks). Week 5, standing Wed 15:30--17:00 slot with Bill McAlister.
 
-This was the repo's first real run (166.5h remaining, i.e. right at the open
-of the week). Built a first working prototype rather than just planning:
+This is the second run on this repo. The first run built the whole
+prototype from scratch (one point in space drives pitch/filter/pluck/noise
+via the bubble/dew/lightning vocabulary --- see `reflections`-style detail in
+the previous hand-off, now superseded by this one). This run's job, per its
+own hand-off, was: **play-test harder, then deepen** --- not add scope.
 
-- **The design call**: one mechanic, not six toys (a lesson from
-  assignment-1's own retro tally --- see `reflections/assignment-1.md` in
-  that repo). A single point in 2D space, driven by pointer, touch, or the
-  arrow keys, drives everything: y-position sets pitch, x-position sets a
-  lowpass filter cutoff, staying still lets the tone decay ("dew"), a tap or
-  the space bar plucks a short percussive voice ("bubble"), and fast
-  movement triggers a filtered noise burst ("lightning"). The six-as-ifs
-  (dream, illusion, bubble, shadow, dew, lightning --- Liuru's own running
-  theme, see `MEMORY.md`'s identity section) supply the vocabulary for what
-  one gesture sounds and looks like, not six separate widgets. Recorded this
-  reasoning in `CLAUDE.md` under "One mechanic, not six toys" so a future run
-  doesn't fragment it back into six modes.
-- **Implementation**: `main.ts` --- oscillator + lowpass filter + gain into a
-  short feedback delay, a noise buffer for the lightning bursts, Pointer
-  Events (unifies mouse/touch) plus arrow-key + space-bar keyboard support
-  driving the *same* virtual point. Canvas 2D visuals: ambient drifting glow
-  before any interaction (the "opening screen invites the first sound"
-  requirement), a point-marker glow sized by how much the tone is "singing",
-  rising/popping bubble rings, jagged lightning flashes.
-- **Spec test**: deleted the starter's `spec/starter.test.ts` (page fully
-  replaced) and added `spec/instrument.test.ts` --- asserts the built page
-  ships no `<audio>`/`<video>` element and that the bundled script
-  references `AudioContext` (the mechanical half of "sound is made live in
-  the page, not played back"; discoverability and fun are for the crit, not
-  vitest).
-- Verified for real, not just by test suite: ran `pnpm dev`, opened with
-  `agent-browser` (checked `location.href` matched before trusting the tab),
-  confirmed console/errors clean, screenshotted the idle ambient state, a
-  pointerdown-triggered bubble, the presence fade after 3s of no movement
-  (dew), and a space-bar pluck. All behaved as designed. Killed the dev
-  server and confirmed the process was gone afterwards.
-- `pnpm check` green (typecheck, build, 21 vitest tests). Committed
-  ([`cacfe38`](https://github.com/comp4020-agentic-coding-studio/comp4020-crit4-liuru/commit/cacfe38))
-  and pushed to origin/main.
+- **Playtested for real**, not just screenshotted: ran `pnpm dev`, drove it
+  with `agent-browser mouse move/down/up` and `press`, at both 1280x800 and
+  390x844 viewports. Found two real bugs, both about the gap between "looks
+  right in a screenshot" and "responds right to an uninstructed stranger":
+  1. **Mouse hover before the first click did nothing** --- marker didn't
+     move, no visual response at all --- because `pointermove` was gated
+     behind `if (!audio) return;`, so the exact "theremin driven by the
+     mouse" case the brief's own opening line describes was silent. Fixed by
+     dropping that guard; pointer tracking (and thus the visual "presence"
+     glow) now runs from the very first hover, sound still waits for the
+     click/tap that a user gesture needs to unlock `AudioContext`.
+  2. **Every fresh page load silently swelled to near-full brightness for a
+     few seconds before fading to the calm idle look**, because `lastMoveAt`
+     defaulted to `0`: the first ~150ms of frames read `now - 0` as "just
+     moved", ramping "presence" up before decaying it back down over the
+     idle tau. Fixed by initialising `lastMoveAt = -Infinity`.
+  - Both fixes verified by screenshot: idle-immediately-after-load now stays
+    small/dim (previously bright), and a bare hover (no prior click) now
+    visibly tracks the cursor. Lightning-on-fast-movement and dew-decay
+    (presence fading over ~3s of stillness) both re-verified working after
+    the fixes. Space-bar pluck re-verified working. Full detail (and the
+    generalisable lessons --- don't gate visual state behind an audio-exists
+    check; initialise "time since last event" timestamps to `-Infinity` not
+    `0`) is in `MEMORY.md`'s process notes.
+  - `pnpm check` green (typecheck, build, 21 vitest tests, unchanged count ---
+    no new tests added this run, this was a playtest-and-fix pass not a
+    feature pass). Committed
+    ([`b2a5e6d`](https://github.com/comp4020-agentic-coding-studio/comp4020-crit4-liuru/commit/b2a5e6d))
+    and pushed to origin/main.
+  - Dev server and browser both confirmed shut down after testing.
 
-## What's left before the crit
-
-This is a first pass, not a finished instrument --- the week is open 168h and
-this run used essentially none of the "deepen in the middle" time. In
-priority order for a future run:
+## What's still open, in priority order
 
 1. Re-fetch the brief once before doing anything, per doctrine.
-2. **Play-test harder, then deepen.** The core mechanic works but is thin:
-   consider whether the pitch/filter mapping actually feels expressive
-   (theremin-style continuous control can be twitchy), whether the
-   lightning-on-velocity threshold triggers too eagerly or not enough, and
-   whether a second player's gesture genuinely sounds different from a
-   first's (the spec's "two players sound different" bar). Try it on an
-   actual touch device if possible, not just synthetic pointer events.
-3. `public/card.png` is still the template placeholder ("Replace this
-   card") --- needs a real 1200x630 image before shipping; not urgent yet.
-4. `PROCESS.md` and `reflections/crit-4.md` are still template/absent ---
-   doctrine puts these on the finishing-steps pass, not every run, but worth
-   drafting once the design has settled rather than leaving both for the
-   very last run.
-5. Consider whether the keyboard-only path is actually satisfying to play
-   uninstructed (arrow keys + space have no on-screen affordance) --- the
-   spec's "playable with whatever is at hand" bar needs this to genuinely
-   work, not just exist in code.
-6. Watch for whether `prefers-reduced-motion` matters here: per `MEMORY.md`'s
-   process notes, the right question is whether the motion carries the
-   argument or just decorates --- for an instrument, the visual feedback
-   loop (glow, bubbles, lightning) IS how the player understands what their
-   gesture just did, so leaving it unhandled again is a deliberate call, not
-   an oversight, but worth re-examining once the visuals are more settled.
+2. **Deepen the feel further, now that the "silent hover" and "phantom load
+   swell" bugs are out of the way** --- those were the two things most likely
+   to make a cold crit's very first few seconds go wrong, but the mechanic
+   itself is still only lightly tuned:
+   - Is the pitch/filter mapping (exponential frequency by y, exponential
+     cutoff by x) actually pleasant to sweep, or twitchy/screechy at the
+     extremes? Only ever eyeballed via screenshots and synthetic pointer
+     jumps so far, never listened to with real ears.
+   - Does the lightning-speed threshold (3.2 normalised units/sec) fire at
+     a musically sensible moment, or too eagerly/rarely? Confirmed it fires
+     at all, not that the threshold feels right.
+   - Does a second player's gesture genuinely sound different from a
+     first's (the spec's "two players sound different" bar)? Nothing about
+     the current mechanic depends on identity, only current position/speed
+     --- worth thinking about whether that bar is met by "different people
+     move differently" alone, or whether it wants more.
+3. Try it on an actual touch device if one becomes available, not just
+   synthetic `agent-browser` pointer events --- touch's own pointerdown-
+   before-pointermove ordering means it was never at risk from bug #1 above,
+   but real touch latency/jitter is still unverified.
+4. `public/card.png` is still the template placeholder --- needs a real
+   1200x630 image before shipping; still not urgent, but the week is
+   halfway through its 168h now.
+5. `PROCESS.md` and `reflections/crit-4.md` are still template/absent.
+   Doctrine puts these on the finishing-steps pass (the run the prompt
+   calls "last"), not every run --- but worth drafting once the mechanic
+   feels settled rather than leaving both for that very last run, since this
+   run's two bug fixes are exactly the kind of "moment that mattered" worth
+   a `PROCESS.md` citation later.
+6. The on-screen keyboard affordance question from the previous hand-off is
+   still open and still low-priority: arrow keys + space have no visible
+   hint, though they do work globally (the `keydown` listener is on
+   `window`, not the canvas, so no focus/tabindex dance is needed). Pointer/
+   touch is the primary, sufficiently-discoverable path; whether keyboard
+   needs its own visible affordance is a judgement call for the crit, not a
+   correctness bug.
+7. `prefers-reduced-motion` remains deliberately unhandled --- the visual
+   feedback (glow, bubbles, lightning) IS how a player reads what their own
+   gesture just did, so snapping it to instant would remove content, not
+   just chrome. Revisit only if the visuals change shape enough to change
+   that judgement.
 
 ## The single most important next action
 
 Re-open this repo, reread this file, re-fetch the crits/04-instrument brief
-to confirm it's unchanged, then actually play the instrument for a few
-minutes (not just screenshot it) and decide what needs deepening before
-treating the mechanic as settled. Don't restart from six separate ideas ---
-build on the one mechanic already in `main.ts`.
+to confirm it's unchanged, then actually *listen* to the instrument for a
+few minutes with real playback (not just screenshot the visuals, which is
+all this run did) --- decide whether the pitch/filter mapping and the
+lightning threshold feel musical, not just functional, before treating the
+mechanic as settled. The two bugs fixed this run were both about the first
+few seconds of an uninstructed stranger's experience; the next layer of
+"deepen" is about whether the instrument stays satisfying past those first
+few seconds.
 
 ## Note on this file's scope
 
