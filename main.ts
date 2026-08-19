@@ -55,7 +55,7 @@ const FLASH_LIFE_MS = 140;
 const KEY_SPEED = 0.7; // normalised units per second
 
 const pointer: Point = { x: 0.5, y: 0.42 };
-let lastMoveAt = 0;
+let lastMoveAt = -Infinity;
 let lastLightningAt = 0;
 let presence = 0;
 let lastFrameAt = 0;
@@ -333,7 +333,6 @@ stage.addEventListener("pointerdown", (event) => {
 });
 
 stage.addEventListener("pointermove", (event) => {
-  if (!audio) return;
   const { x, y } = normalisePointer(event);
   setPointer(x, y, performance.now());
 });
