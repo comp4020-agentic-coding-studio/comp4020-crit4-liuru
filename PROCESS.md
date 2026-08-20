@@ -1,76 +1,71 @@
 # Process overview
 
-<!-- TEMPLATE: this file is a shape to fill in, not a form. Replace everything
-     in it with your own overview, and delete this comment — `pnpm
-     check:evidence` will remind you if it's still here. -->
-
 A reading-guide to how the work came together --- a map to your process, not an
 essay about it. Markers read this file and follow its citations; they don't
 trawl the repo for evidence you didn't point at, so if a moment mattered, cite
 it.
 
-This file is the shape; the course site's
-[assessment page](https://comp.anu.edu.au/courses/comp4020-agentic-coding-studio/topics/assessment/#what-you-submit)
-is the requirement, and its
-[word counts](https://comp.anu.edu.au/courses/comp4020-agentic-coding-studio/topics/assessment/#word-counts)
-cover every deliverable.
-
 ## What I built
 
-One paragraph: the thing, and the idea behind it.
+An instrument driven by one mechanic: a single point in 2D space --- pointer,
+touch, or the arrow keys --- sets an oscillator's pitch and a filter's cutoff,
+decays to a resting drone (dew) when it stops moving, plucks a bubble on a tap
+or the space bar, and cracks like lightning when it moves fast enough. The
+six-as-ifs (dream, illusion, bubble, shadow, dew, lightning) name what
+different derived properties of that one signal sound and look like, rather
+than being six separate voices bolted together.
 
 ## The moments that mattered
 
-Three or four for an assignment; fewer is fine for a weekly prototype. Keep the
-list short so each moment has room to do all four jobs:
+1. **One mechanic, not six toys.** The obvious reading of "dream, illusion,
+   bubble, shadow, dew, lightning" is six widgets, one per simile ---
+   assignment-1 already built that shape once and it read as six disconnected
+   toys, not one instrument. Instead of six voices I built one continuous
+   signal (pointer position + velocity) and mapped each simile to a different
+   derived property of it: stillness is dew, a tap is a bubble, speed past a
+   threshold is lightning. I knew it held together because
+   `spec/instrument.test.ts` asserts the mechanical half --- no `<audio>`
+   element, `AudioContext` present, one playing surface, no score or fail
+   state --- and because playtesting the built page showed a single gesture
+   driving every voice, not a menu of separate ones
+   ([`cacfe38`](https://github.com/comp4020-agentic-coding-studio/comp4020-crit4-liuru/commit/cacfe38)).
 
-1. **what happened** --- the problem, or the thing that went wrong
-2. **what you did instead of the obvious thing** --- the call you made, and why
-   it beat the obvious one
-3. **how you knew it was right** --- the check you ran, the viewport you looked
-   at, what you read before accepting the diff
-4. **the citation** --- a commit or commit range, a `CLAUDE.md` change, a check
-   that went from red to green, a prompt paired with the commit it produced
+2. **A silent hover is the exact failure the brief warns about.** Playtesting
+   the first build found the pointer marker did nothing until the first click
+   --- the audio-unlock gate on `pointermove` was also gating the *visual*
+   position tracking, so hovering before ever clicking (the natural first
+   move for "a theremin driven by the mouse", the brief's own opening example)
+   produced zero feedback. The obvious fix would have been to just unlock
+   audio earlier; instead I split the gate so pointer tracking runs
+   unconditionally and only the `AudioContext.resume()` stays behind a user
+   gesture, matching the autoplay policy the brief itself cites. The same pass
+   also caught a `lastMoveAt` initialised to `0` rather than `-Infinity`,
+   which made every fresh page load read as "just moved" and swell to near-
+   full brightness before decaying --- a phantom glow with no gesture behind
+   it. I confirmed both by scripting `agent-browser` to move the pointer
+   *before* any click and screenshotting within the first couple of seconds of
+   a real navigation, since by the time a human looks the decay has already
+   settled
+   ([`b2a5e6d`](https://github.com/comp4020-agentic-coding-studio/comp4020-crit4-liuru/commit/b2a5e6d)).
 
-Jobs 2 and 3 are the ones the repo can't tell a reader on its own, so they're
-where the marks are. The strongest moments are the ones where a correction
-landed in the **harness** --- the standards and checks your work has to satisfy
---- rather than in a retry: a rule added to `CLAUDE.md`, a check wired up, an
-attempt thrown away. Retrying until it passes is the routine case, and changing
-what the work runs against is the skilled one.
-
-Cite each moment as a link whose text is the commit hash or range and whose
-target is this repo's commit or compare URL, so a reader clicks straight to the
-evidence:
-
-- one commit: [`a1b2c3d`](https://github.com/YOUR-ORG/YOUR-REPO/commit/a1b2c3d)
-- a range:
-  [`a1b2c3d...e4f5a6b`](https://github.com/YOUR-ORG/YOUR-REPO/compare/a1b2c3d...e4f5a6b)
-
-To pair a prompt with the commit it produced, quote the prompt (curated, not a
-full transcript) next to the citation:
-
-> the prompt, verbatim
-
-Screenshots are welcome where one carries the verification better than a
-sentence does. Commit the file to this repo and link it with a **relative**
-path, which is what makes it render on GitHub: `![alt text](docs/before.png)`.
-Images don't count towards the word count and don't replace the citation.
-
-### A worked moment, for shape
-
-Delete this section along with the rest of the boilerplate --- it's here to show
-the four jobs in one paragraph, not to be imitated in content.
-
-> The date formatter kept coming back with `toLocaleDateString()` and no locale
-> argument, so the same build rendered differently on my machine and in CI. I'd
-> already re-prompted it twice, which fixed the line but not the habit, so the
-> third time I put the rule in `CLAUDE.md` instead
-> ([`3f9ac21`](https://github.com/YOUR-ORG/YOUR-REPO/commit/3f9ac21)) and added
-> a spec test that fails on a bare `toLocaleDateString`. That's what told me it
-> had actually taken: the test went red against the old code and green against
-> the new, and the next two features it wrote passed it without prompting
-> ([`3f9ac21...b7e0d14`](https://github.com/YOUR-ORG/YOUR-REPO/compare/3f9ac21...b7e0d14)).
+3. **Reframing "listen to it" as "measure it".** A later run's own hand-off
+   ended with "next action: actually listen to it with real ears" --- a
+   category error, since an agent has no ears and the brief says so directly
+   ("an agent can build a synth but can't hear the result, so your ear is the
+   harness"). Rather than repeating that instruction, the next run asked what
+   an agent genuinely *can* verify about sound underneath a human's musical
+   judgement: it rebuilt `main.ts`'s exact synth graph in an
+   `OfflineAudioContext` and rendered it at the extremes and centre of the
+   pointer range, checking for clipping and confirming the dominant rendered
+   frequency matched `currentFrequency(y)`; and it cross-checked the lightning
+   speed threshold against realistic gesture speeds with an independent
+   `pointermove` listener, then proved the burst actually fired (not just
+   "should have") by counting real `AudioContext.prototype.createBufferSource`
+   calls, since the flash's 140ms visual life is shorter than a screenshot
+   round-trip. No clipping and no bugs turned up, so `main.ts` didn't change ---
+   the artefact of that run is the record of what was checked and why it
+   stopped there, not a diff
+   ([`e867052`](https://github.com/comp4020-agentic-coding-studio/comp4020-crit4-liuru/commit/e867052)).
 
 ## Before you ship
 
