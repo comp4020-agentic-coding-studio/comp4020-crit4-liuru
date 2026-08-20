@@ -1,107 +1,97 @@
 # Hand-off
 
-## Current state (run on crit4-instrument, 160.5h to cutoff at time of writing)
+## Current state (run on crit4-instrument, 142.5h to cutoff at time of writing)
 
 `comp4020-crit4-liuru` --- brief is
 [crits/04-instrument](https://comp.anu.edu.au/courses/comp4020-agentic-coding-studio/api/crits/04-instrument.json),
-re-fetched and unchanged from the previous run's read: turn the browser into a
-musical instrument a stranger can pick up and play, Web Audio API,
-client-side, GitHub Pages, crit opens cold (pod plays it before anyone
-talks). Week 5, standing Wed 15:30--17:00 slot with Bill McAlister.
+re-fetched and unchanged again: turn the browser into a musical instrument a
+stranger can pick up and play, Web Audio API, client-side, GitHub Pages, crit
+opens cold. Week 5, standing Wed 15:30--17:00 slot with Bill McAlister. This
+brief's own description is worth repeating verbatim, because it reframes what
+this run actually did: **"an agent can build a synth but can't hear the
+result, so your ear is the harness."**
 
-This is the second run on this repo. The first run built the whole
-prototype from scratch (one point in space drives pitch/filter/pluck/noise
-via the bubble/dew/lightning vocabulary --- see `reflections`-style detail in
-the previous hand-off, now superseded by this one). This run's job, per its
-own hand-off, was: **play-test harder, then deepen** --- not add scope.
+This is the third run on this repo. Run 1 built the prototype from scratch.
+Run 2 playtested and fixed two real interaction bugs (silent hover, phantom
+load-in glow). Run 2's own hand-off ended with "next action: actually listen
+to it with real ears" --- but that instruction is a category error the brief
+itself warns against. This run's job was to correct that and find what an
+agent genuinely *can* verify about sound, then use it.
 
-- **Playtested for real**, not just screenshotted: ran `pnpm dev`, drove it
-  with `agent-browser mouse move/down/up` and `press`, at both 1280x800 and
-  390x844 viewports. Found two real bugs, both about the gap between "looks
-  right in a screenshot" and "responds right to an uninstructed stranger":
-  1. **Mouse hover before the first click did nothing** --- marker didn't
-     move, no visual response at all --- because `pointermove` was gated
-     behind `if (!audio) return;`, so the exact "theremin driven by the
-     mouse" case the brief's own opening line describes was silent. Fixed by
-     dropping that guard; pointer tracking (and thus the visual "presence"
-     glow) now runs from the very first hover, sound still waits for the
-     click/tap that a user gesture needs to unlock `AudioContext`.
-  2. **Every fresh page load silently swelled to near-full brightness for a
-     few seconds before fading to the calm idle look**, because `lastMoveAt`
-     defaulted to `0`: the first ~150ms of frames read `now - 0` as "just
-     moved", ramping "presence" up before decaying it back down over the
-     idle tau. Fixed by initialising `lastMoveAt = -Infinity`.
-  - Both fixes verified by screenshot: idle-immediately-after-load now stays
-    small/dim (previously bright), and a bare hover (no prior click) now
-    visibly tracks the cursor. Lightning-on-fast-movement and dew-decay
-    (presence fading over ~3s of stillness) both re-verified working after
-    the fixes. Space-bar pluck re-verified working. Full detail (and the
-    generalisable lessons --- don't gate visual state behind an audio-exists
-    check; initialise "time since last event" timestamps to `-Infinity` not
-    `0`) is in `MEMORY.md`'s process notes.
-  - `pnpm check` green (typecheck, build, 21 vitest tests, unchanged count ---
-    no new tests added this run, this was a playtest-and-fix pass not a
-    feature pass). Committed
-    ([`b2a5e6d`](https://github.com/comp4020-agentic-coding-studio/comp4020-crit4-liuru/commit/b2a5e6d))
-    and pushed to origin/main.
-  - Dev server and browser both confirmed shut down after testing.
+- **Reframed "listen" as "measure".** An agent has no ears, so "does the
+  pitch mapping sound pleasant" stays a human question for the crit. What an
+  agent *can* check is whether the synthesis is technically sound underneath
+  that judgement:
+  - Rendered the actual synth graph offline (`OfflineAudioContext`,
+    replicating `main.ts`'s exact topology and constants --- oscillator,
+    filter, gain, delay+feedback loop) at the extremes and centre of the
+    pointer range. No clipping anywhere (peak amplitude 0.17--0.35 of full
+    scale, even with the delay/feedback loop factored in --- its 0.28
+    feedback gain bounds the geometric-series buildup to ~1.39x, no runaway).
+    Dominant rendered frequency matched `currentFrequency(y)` within DFT bin
+    resolution at every position tested. This rules out "screechy from
+    overdrive" as a real risk in the exponential pitch/filter mapping; it
+    does not answer whether the mapping is *musically* pleasant to sweep ---
+    that's still the crit's call.
+  - Cross-checked the lightning speed threshold (3.2 normalised units/sec)
+    against realistic gesture speeds using a second, independent
+    `pointermove` listener that replicated the app's own speed formula: an
+    energetic ordinary sweep measured ~2.5 units/sec and did *not* cross the
+    threshold; a genuine full-diagonal flick measured ~9.5 units/sec and did.
+    Confirmed the burst actually fired (not just "should have") by patching
+    `AudioContext.prototype.createBufferSource` to count invocations ---
+    necessary because the flash's 140ms visual life is shorter than
+    `agent-browser screenshot`'s own round-trip latency, so screenshots
+    consistently missed a burst that the counter proved had fired. The
+    threshold sits sensibly between "energetic play" and "deliberate flick".
+  - No bugs found in `main.ts` this run; no code changes to it were needed.
+- **Replaced `public/card.png`**, still the literal starter placeholder
+  ("Replace this card") going into this run. New version is a real
+  screenshot of the canvas mid-gesture (glow + bubble) composited with the
+  site's own title and the Diamond Sūtra line already used in the page
+  caption, oxipng-optimised to ~304KB. Committed
+  ([`7210e77`](https://github.com/comp4020-agentic-coding-studio/comp4020-crit4-liuru/commit/7210e77))
+  and pushed to origin/main.
+- `pnpm check` green throughout (21 tests, unchanged --- no new tests this
+  run). Dev server and browser both confirmed shut down after testing.
 
 ## What's still open, in priority order
 
 1. Re-fetch the brief once before doing anything, per doctrine.
-2. **Deepen the feel further, now that the "silent hover" and "phantom load
-   swell" bugs are out of the way** --- those were the two things most likely
-   to make a cold crit's very first few seconds go wrong, but the mechanic
-   itself is still only lightly tuned:
-   - Is the pitch/filter mapping (exponential frequency by y, exponential
-     cutoff by x) actually pleasant to sweep, or twitchy/screechy at the
-     extremes? Only ever eyeballed via screenshots and synthetic pointer
-     jumps so far, never listened to with real ears.
-   - Does the lightning-speed threshold (3.2 normalised units/sec) fire at
-     a musically sensible moment, or too eagerly/rarely? Confirmed it fires
-     at all, not that the threshold feels right.
-   - Does a second player's gesture genuinely sound different from a
-     first's (the spec's "two players sound different" bar)? Nothing about
-     the current mechanic depends on identity, only current position/speed
-     --- worth thinking about whether that bar is met by "different people
-     move differently" alone, or whether it wants more.
-3. Try it on an actual touch device if one becomes available, not just
-   synthetic `agent-browser` pointer events --- touch's own pointerdown-
-   before-pointermove ordering means it was never at risk from bug #1 above,
-   but real touch latency/jitter is still unverified.
-4. `public/card.png` is still the template placeholder --- needs a real
-   1200x630 image before shipping; still not urgent, but the week is
-   halfway through its 168h now.
-5. `PROCESS.md` and `reflections/crit-4.md` are still template/absent.
-   Doctrine puts these on the finishing-steps pass (the run the prompt
-   calls "last"), not every run --- but worth drafting once the mechanic
-   feels settled rather than leaving both for that very last run, since this
-   run's two bug fixes are exactly the kind of "moment that mattered" worth
-   a `PROCESS.md` citation later.
-6. The on-screen keyboard affordance question from the previous hand-off is
-   still open and still low-priority: arrow keys + space have no visible
-   hint, though they do work globally (the `keydown` listener is on
-   `window`, not the canvas, so no focus/tabindex dance is needed). Pointer/
-   touch is the primary, sufficiently-discoverable path; whether keyboard
-   needs its own visible affordance is a judgement call for the crit, not a
-   correctness bug.
-7. `prefers-reduced-motion` remains deliberately unhandled --- the visual
-   feedback (glow, bubbles, lightning) IS how a player reads what their own
-   gesture just did, so snapping it to instant would remove content, not
-   just chrome. Revisit only if the visuals change shape enough to change
-   that judgement.
+2. The audio engine is now verified technically sound (no clipping, correct
+   frequencies, sensible threshold separation) --- that thread is closed from
+   the agent side. What's left is entirely human judgement for the crit:
+   does the exponential pitch/filter sweep feel *musical*, not just correct;
+   does the lightning threshold fire at a moment that feels right, not just
+   a mathematically-verified one; does a second player's gesture genuinely
+   read as different from a first's. None of this needs another agent run to
+   "check" --- it needs the actual Wednesday crit.
+3. Try it on a real touch device if one becomes available --- still only
+   ever driven by synthetic pointer events, never real touch latency/jitter.
+4. `PROCESS.md` and `reflections/crit-4.md` are still template/absent.
+   Doctrine puts these on the finishing-steps pass, not every run --- but
+   both this run's DSP verification and run 2's two bug fixes are exactly
+   the kind of citable moments worth drafting before they're a week old.
+5. The on-screen keyboard affordance question is still open and still
+   low-priority: arrow keys + space work globally with no visible hint.
+   Judgement call for the crit, not a correctness bug.
+6. `prefers-reduced-motion` remains deliberately unhandled --- the visual
+   feedback IS how a player reads their own gesture, not decorative chrome.
+   Revisit only if the visuals change shape enough to change that judgement.
 
 ## The single most important next action
 
-Re-open this repo, reread this file, re-fetch the crits/04-instrument brief
-to confirm it's unchanged, then actually *listen* to the instrument for a
-few minutes with real playback (not just screenshot the visuals, which is
-all this run did) --- decide whether the pitch/filter mapping and the
-lightning threshold feel musical, not just functional, before treating the
-mechanic as settled. The two bugs fixed this run were both about the first
-few seconds of an uninstructed stranger's experience; the next layer of
-"deepen" is about whether the instrument stays satisfying past those first
-few seconds.
+If the next prompt does not call this repo's run "last": there is nothing
+left that an agent can usefully verify alone about feel --- the two most
+likely early-run risks (silent hover, phantom load-in glow) were fixed in
+run 2, and this run confirmed the DSP underneath the mapping has no technical
+defect. The honest next step is a human playing it, not another agent
+playtest pass. If a run has time to spend, spend it on `PROCESS.md` and
+`reflections/crit-4.md` early rather than saving both for the very last run.
+
+If the next prompt calls this repo's run "last": go straight to the
+finishing steps in doctrine --- `PROCESS.md`, `reflections/crit-4.md`,
+`pnpm check:evidence`, commit, push.
 
 ## Note on this file's scope
 

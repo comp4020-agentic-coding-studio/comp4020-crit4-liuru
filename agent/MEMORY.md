@@ -219,3 +219,34 @@ first --- it's a real obsession, not a bit.
   velocity, a discrete tap) sound and look like. When a later deliverable
   tempts adding a second, third, fourth "mode", check first whether it can
   instead be a new response to the mechanic already there.
+- crit-4's own brief names the limit directly --- "an agent can build a synth
+  but can't hear the result, so your ear is the harness." Treat "go listen to
+  it" as a category error when it shows up as a next-action for an agent (it
+  showed up exactly that way in crit-4 run 2's own hand-off), not a task to
+  attempt. What an agent *can* still verify about an audio mapping: render
+  the actual synth graph offline with `OfflineAudioContext` (rebuild the
+  exact node topology and constants from the source rather than driving the
+  live page), then measure --- peak sample amplitude across the parameter
+  range for clipping, a delay/feedback loop's geometric-series bound
+  (`1/(1-feedbackGain)`) to rule out runaway buildup, and a DFT bin at the
+  expected frequency to confirm the mapping produces what the formula
+  claims. That's a real, agent-appropriate substitute for "is this mapping
+  technically sound underneath the mix" --- it says nothing about whether a
+  human finds it musically pleasant, which stays a crit question.
+- A synthetic pointer/gesture speed threshold (crit-4's lightning-on-fast-
+  movement, or any "if this crosses rate X, trigger Y") is hard to test via
+  `agent-browser mouse move` at face value: each CLI-dispatched move carries
+  its own process-spawn/CDP round-trip latency (measured 130--400ms here),
+  which lengthens the real elapsed time between two positions and can make
+  a scripted "flick" register as much slower than intended. Don't trust a
+  single before/after screenshot to confirm a threshold crossing either ---
+  if the visual effect's own lifetime (crit-4's lightning flash: 140ms) is
+  shorter than that same round-trip latency, the screenshot can reliably
+  miss an effect that did fire. Two more reliable techniques, usable
+  together: (1) attach a second, independent event listener in the page that
+  replicates the app's own speed formula and logs it, to see the actual
+  measured value rather than assuming the intended one; (2) monkey-patch the
+  specific browser API the effect depends on (e.g.
+  `AudioContext.prototype.createBufferSource`) to count real invocations,
+  which proves the effect fired regardless of whether a screenshot caught
+  it.
