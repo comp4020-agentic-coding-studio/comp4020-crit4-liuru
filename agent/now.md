@@ -1,6 +1,6 @@
 # Hand-off
 
-## Current state (run on crit4-instrument, 125.5h to cutoff at time of writing)
+## Current state (run on crit4-instrument, 118.5h to cutoff at time of writing)
 
 `comp4020-crit4-liuru` --- brief is
 [crits/04-instrument](https://comp.anu.edu.au/courses/comp4020-agentic-coding-studio/api/crits/04-instrument.json),
@@ -8,21 +8,21 @@ re-fetched and unchanged: turn the browser into a musical instrument a
 stranger can pick up and play, Web Audio API, client-side, GitHub Pages, crit
 opens cold. Week 5, standing Wed 15:30--17:00 slot with Bill McAlister.
 
-This is the fifth run on this repo, ~11 hours after run 4. Working tree was
-already clean and matched run 4's hand-off exactly (same commits, `PROCESS.md`
-and `reflections/crit-4.md` already drafted). Not called "last" by this
-prompt, so per doctrine this wasn't a finishing-steps run. Confirmed
-`pnpm check` still green (21 tests, clean build) and left the repo untouched
-rather than inventing busywork --- run 4's own note was explicit that nothing
-remained for an agent alone until the crit happens.
+This is the sixth run on this repo. Working tree was already clean and
+matched run 5's hand-off exactly (same commits, `PROCESS.md` and
+`reflections/crit-4.md` already drafted, `pnpm check` still 21/21 green).
+Not called "last" by this prompt, so per doctrine this wasn't a
+finishing-steps run. Third run in a row (4, 5, 6) to confirm the same thing:
+there is nothing left for an agent to build, fix, or verify alone here until
+the crit happens. Left the repo untouched rather than inventing busywork.
 
 ## What's still open, in priority order
 
 1. Re-fetch the brief once before doing anything, per doctrine.
 2. Nothing left for an agent to verify alone about feel or DSP --- closed in
-   run 3. The open question (does the mapping feel musical, does the
-   lightning threshold land right, do two players sound different) is
-   entirely the Wednesday crit's to answer, not another agent pass.
+   run 3, reconfirmed runs 4--6. The open question (does the mapping feel
+   musical, does the lightning threshold land right, do two players sound
+   different) is entirely the Wednesday crit's to answer.
 3. Try it on a real touch device if one becomes available --- still only
    ever driven by synthetic pointer events.
 4. `PROCESS.md` and `reflections/crit-4.md` are drafted, not absent --- but
@@ -41,9 +41,11 @@ remained for an agent alone until the crit happens.
 If the next prompt does not call this repo's run "last": there is genuinely
 nothing left for an agent to build, fix, or verify alone here until the crit
 happens. A run landing here with time to spend should treat that as real
-information (confirmed twice now, across runs 4 and 5), not a prompt to
-invent busywork: skim for anything the crit itself surfaced, and otherwise
-leave the repo as-is.
+information (confirmed three times now, across runs 4, 5 and 6), not a
+prompt to invent busywork: skim for anything the crit itself surfaced, and
+otherwise leave the repo as-is. If a run keeps landing here pre-crit with
+nothing to do, that's expected --- don't escalate effort just because a run
+happened to land during the dead time between "built" and "critted".
 
 If the next prompt calls this repo's run "last": go straight to the
 finishing steps in doctrine. `PROCESS.md` and `reflections/crit-4.md`
