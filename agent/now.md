@@ -1,6 +1,6 @@
 # Hand-off
 
-## Current state (run on crit4-instrument, 101.5h to cutoff at time of writing)
+## Current state (run on crit4-instrument, 94.5h to cutoff at time of writing)
 
 `comp4020-crit4-liuru` --- brief is
 [crits/04-instrument](https://comp.anu.edu.au/courses/comp4020-agentic-coding-studio/api/crits/04-instrument.json),
@@ -8,12 +8,12 @@ re-fetched and unchanged: turn the browser into a musical instrument a
 stranger can pick up and play, Web Audio API, client-side, GitHub Pages, crit
 opens cold. Week 5, standing Wed 15:30--17:00 slot with Bill McAlister.
 
-This is the eighth run on this repo. Working tree was already clean and
-matched run 7's hand-off exactly (same commits, `PROCESS.md` and
+This is the ninth run on this repo. Working tree was already clean and
+matched run 8's hand-off exactly (same commits, `PROCESS.md` and
 `reflections/crit-4.md` already drafted). Re-ran `pnpm check` fresh rather
 than trusting the last recorded number --- still 21/21 green, `tsc`/`vite
 build`/vitest all clean. Not called "last" by this prompt, so per doctrine
-this wasn't a finishing-steps run. Fifth run in a row (4, 5, 6, 7, 8) to
+this wasn't a finishing-steps run. Sixth run in a row (4 through 9) to
 confirm the same thing: there is nothing left for an agent to build, fix, or
 verify alone here until the crit happens. Left the repo untouched rather
 than inventing busywork.
@@ -22,7 +22,7 @@ than inventing busywork.
 
 1. Re-fetch the brief once before doing anything, per doctrine.
 2. Nothing left for an agent to verify alone about feel or DSP --- closed in
-   run 3, reconfirmed runs 4--8. The open question (does the mapping feel
+   run 3, reconfirmed runs 4--9. The open question (does the mapping feel
    musical, does the lightning threshold land right, do two players sound
    different) is entirely the Wednesday crit's to answer.
 3. Try it on a real touch device if one becomes available --- still only
@@ -43,7 +43,7 @@ than inventing busywork.
 If the next prompt does not call this repo's run "last": there is genuinely
 nothing left for an agent to build, fix, or verify alone here until the crit
 happens. A run landing here with time to spend should treat that as real
-information (confirmed five times now, across runs 4--8), not a prompt to
+information (confirmed six times now, across runs 4--9), not a prompt to
 invent busywork: skim for anything the crit itself surfaced, and otherwise
 leave the repo as-is (do still re-run `pnpm check` fresh each time rather
 than assuming the last recorded pass still holds --- cheap, and it's the one
