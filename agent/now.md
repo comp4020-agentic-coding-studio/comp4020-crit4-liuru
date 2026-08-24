@@ -1,68 +1,52 @@
 # Hand-off
 
-## Current state (run on crit4-instrument, 40.5h to cutoff at time of writing)
+## crit4-instrument: shipped, final run complete
 
-`comp4020-crit4-liuru` --- brief is
-[crits/04-instrument](https://comp.anu.edu.au/courses/comp4020-agentic-coding-studio/api/crits/04-instrument.json),
-re-fetched and unchanged: turn the browser into a musical instrument a
-stranger can pick up and play, Web Audio API, client-side, GitHub Pages, crit
-opens cold. Week 5, standing Wed 15:30--17:00 slot with Bill McAlister.
+`comp4020-crit4-liuru` --- this run was called "last" by the prompt (29.5h to
+cutoff at time of writing), so it went straight to doctrine's finishing steps
+rather than another confirm-and-wait pass. Brief re-fetched and unchanged from
+the sixteen prior runs: turn the browser into a musical instrument a stranger
+can pick up and play, Web Audio API, client-side, GitHub Pages, crit opens
+cold.
 
-This is the sixteenth run on this repo. Working tree was already clean and
-matched run 15's hand-off exactly (same commits, `PROCESS.md` and
-`reflections/crit-4.md` already drafted). Re-ran `pnpm check` fresh rather
-than trusting the last recorded number --- still 21/21 green, `tsc`/`vite
-build`/vitest all clean. Not called "last" by this prompt, so per doctrine
-this wasn't a finishing-steps run. Thirteenth run in a row (4 through 16) to
-confirm the same thing: there is nothing left for an agent to build, fix, or
-verify alone here until the crit happens. Left the repo untouched rather
-than inventing busywork.
+Working tree was already clean, matching run 16's hand-off exactly.
+`PROCESS.md` and `reflections/crit-4.md` were already drafted and didn't need
+revision --- no crit had happened yet to surface anything new to write in
+against them, and re-reading both against the actual repo history still held
+up. Re-ran everything fresh rather than trusting prior recorded numbers:
 
-## What's still open, in priority order
+- `pnpm check` (`tsc`, `vite build`, vitest): 21/21 green.
+- `pnpm check:evidence`: both citations resolve, reflection file present.
+- Dev server up, opened in `agent-browser`, confirmed `location.href` matched
+  before trusting anything (this container's browser has been a shared
+  instance before). Console/error stream clean beyond normal vite HMR noise.
+- Screenshotted at both marking viewports (1920x1080, 390x844) --- renders
+  correctly at both, single page (`index.html`), no other pages/links to
+  check.
+- Exercised the actual mechanic: moved the pointer, clicked (`mouse move`
+  then bare `mouse down`/`up` --- see MEMORY.md, `mouse down <x> <y>` errors),
+  screenshotted after. No console errors after interaction.
+- Dev server and browser session both shut down afterwards.
 
-1. Re-fetch the brief once before doing anything, per doctrine.
-2. Nothing left for an agent to verify alone about feel or DSP --- closed in
-   run 3, reconfirmed runs 4--16. The open question (does the mapping feel
-   musical, does the lightning threshold land right, do two players sound
-   different) is entirely the Wednesday crit's to answer.
-3. Try it on a real touch device if one becomes available --- still only
-   ever driven by synthetic pointer events.
-4. `PROCESS.md` and `reflections/crit-4.md` are drafted, not absent --- but
-   if the crit surfaces something concrete (a bug found live, a design
-   choice explained differently than `PROCESS.md` currently states), the
-   final run should still revise both rather than treat them as locked.
-5. The on-screen keyboard affordance question is still open and
-   low-priority: arrow keys + space work globally with no visible hint.
-   Judgement call for the crit, not a correctness bug.
-6. `prefers-reduced-motion` remains deliberately unhandled --- the visual
-   feedback IS how a player reads their own gesture, not decorative chrome.
-   Revisit only if the visuals change shape enough to change that judgement.
+Nothing changed in the working tree --- already up to date with `origin/main`
+(`ed52d94`), nothing to commit or push. This is expected: runs 4--16 had
+already independently confirmed there was nothing left an agent could build,
+fix, or verify alone before the crit, and this run's fresh verification agreed.
+
+## What's still open (for the group, not an agent)
+
+The crit itself hasn't happened yet as of this run --- the questions the brief
+poses (does the mapping feel musical, does the lightning threshold land right,
+do two players sound different, is the on-screen keyboard affordance
+discoverable enough) are the Wednesday 15:30--17:00 slot's to answer, not
+something a future run should try to re-open alone. If a later run lands here
+post-crit with something concrete the crit surfaced, that's the one legitimate
+reason to revise `PROCESS.md`/`reflections/crit-4.md` again --- otherwise this
+deliverable is done.
 
 ## The single most important next action
 
-If the next prompt does not call this repo's run "last": there is genuinely
-nothing left for an agent to build, fix, or verify alone here until the crit
-happens. A run landing here with time to spend should treat that as real
-information (confirmed thirteen times now, across runs 4--16), not a prompt to
-invent busywork: skim for anything the crit itself surfaced, and otherwise
-leave the repo as-is (do still re-run `pnpm check` fresh each time rather
-than assuming the last recorded pass still holds --- cheap, and it's the one
-thing that could have silently drifted). If a run keeps landing here
-pre-crit with nothing to do, that's expected --- don't escalate effort just
-because a run happened to land during the dead time between "built" and
-"critted".
-
-If the next prompt calls this repo's run "last": go straight to the
-finishing steps in doctrine. `PROCESS.md` and `reflections/crit-4.md`
-already exist and passed `check:evidence`, but re-read both against
-whatever the actual crit revealed before treating them as done --- render
-the site fresh in a browser end to end, confirm every page and link, shut
-servers down, commit, push.
-
-## Note on this file's scope
-
-`memory/now.md` is shared across all deliverables, not per-repo --- whichever
-deliverable a run touches last overwrites it. If you're opening a different
-repo than the one described above, this hand-off is stale for your purposes;
-each repo's own `agent/now.md` (harness-committed, read-only) holds the
-snapshot specific to that deliverable's last run.
+None outstanding for crit-4 --- it's shipped. If the next run is a fresh
+deliverable, orient from that repo's own brief and history, not this one; this
+file is shared across all deliverables and gets overwritten by whichever repo
+a run touches last.

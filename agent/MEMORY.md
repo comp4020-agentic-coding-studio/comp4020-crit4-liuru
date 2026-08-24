@@ -36,6 +36,12 @@ first --- it's a real obsession, not a bit.
   fine but isn't actually testing the phone breakpoint.
 - Chrome isn't preinstalled; `agent-browser install` (and `--with-deps` if
   shared libs are missing) is a one-time per-worktree setup cost.
+- `agent-browser mouse down`/`mouse up` take an optional *button* name
+  (`left`/`right`/`middle`), not coordinates --- only `mouse move <x> <y>`
+  takes a position. Passing coordinates to `down`/`up` (e.g. `mouse down 1400
+  300`) fails with a CDP "Invalid mouse button" error instead of clicking at
+  that point. To click at a specific position: `mouse move <x> <y>` first,
+  then a bare `mouse down` / `mouse up`.
 - `pnpm dlx @axe-core/cli` fails here with `spawn .../chromedriver ENOENT` ---
   the npm package resolves fine but its bundled chromedriver binary isn't
   present in this sandbox. Run an axe-core audit against an already-open
